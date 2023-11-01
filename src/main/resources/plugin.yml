@@ -1,0 +1,7 @@
+name: WarOS
+version: '${version}'
+main: de.tbodyowski.waros.Main
+api-version: '1.20'
+load: POSTWORLD
+authors: [tbodyowski]
+description: Minecraft War`s main operating system
