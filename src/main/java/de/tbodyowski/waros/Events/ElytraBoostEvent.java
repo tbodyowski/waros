@@ -48,7 +48,6 @@ public class ElytraBoostEvent extends BukkitRunnable implements Listener {
                         , "Invalid world " + config.getString("world")),
                 config.getString("message"));
     }
-
     private ElytraBoostEvent(Plugin plugin, int multiplyValue, int spawnRadius, boolean boostEnabled, World world, String message) {
         this.plugin = plugin;
         this.multiplyValue = multiplyValue;
@@ -59,8 +58,6 @@ public class ElytraBoostEvent extends BukkitRunnable implements Listener {
 
         this.runTaskTimer(this.plugin, 0, 3);
     }
-
-
     @Override
     public void run() {
         world.getPlayers().forEach(player -> {
@@ -76,8 +73,6 @@ public class ElytraBoostEvent extends BukkitRunnable implements Listener {
             }
         });
     }
-
-
     @EventHandler
     public void onDoubleJump(PlayerToggleFlightEvent event) {
         if (event.getPlayer().getGameMode() != GameMode.SURVIVAL && event.getPlayer().getGameMode() != GameMode.ADVENTURE) return;
@@ -93,7 +88,6 @@ public class ElytraBoostEvent extends BukkitRunnable implements Listener {
                         .append(messageParts[1])
                         .create());
     }
-
     @EventHandler
     public void onDamage(EntityDamageEvent event) {
         if (event.getEntityType() == EntityType.PLAYER
@@ -101,8 +95,6 @@ public class ElytraBoostEvent extends BukkitRunnable implements Listener {
                 || event.getCause() == EntityDamageEvent.DamageCause.FLY_INTO_WALL)
                 && flying.contains(event.getEntity())) event.setCancelled(true);
     }
-
-
     @EventHandler
     public void onSwapItem(PlayerSwapHandItemsEvent event) {
         if (!boostEnabled || !flying.contains(event.getPlayer()) || boosted.contains(event.getPlayer())) return;
@@ -110,12 +102,10 @@ public class ElytraBoostEvent extends BukkitRunnable implements Listener {
         boosted.add(event.getPlayer());
         event.getPlayer().setVelocity(event.getPlayer().getLocation().getDirection().multiply(multiplyValue));
     }
-
     @EventHandler
     public void onToggleGlide(EntityToggleGlideEvent event) {
         if (event.getEntityType() == EntityType.PLAYER && flying.contains(event.getEntity())) event.setCancelled(true);
     }
-
     private boolean isInSpawnRadius(Player player) {
         if (!player.getWorld().equals(world)) return false;
         return world.getSpawnLocation().distance(player.getLocation()) <= spawnRadius;
