@@ -12,3 +12,4 @@ DeathCounter-on/off: true
 BlockedWords-Toggle: false
 Prefix-LengthLimit: 5
 Uppercase/LengthLimit-Toggle: false
+lastKnownVersion: ""
