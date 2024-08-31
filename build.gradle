@@ -3,7 +3,7 @@ plugins {
 }
 
 group = 'de.tbodyowski'
-version = '1.0'
+version = ''
 
         repositories {
             mavenCentral()
