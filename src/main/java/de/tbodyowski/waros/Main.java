@@ -47,12 +47,6 @@ import java.util.logging.Level;
 
 public final class Main extends JavaPlugin implements Listener {
 
-    private static final String REPO_OWNER = "tbodyowski";
-    private static final String REPO_NAME = "waros";
-    private static final String GITHUB_API_URL = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/releases/latest";
-    private static final String GITHUB_TOKEN = "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";  // Your GitHub token here
-    private static final String VERSION_FILE = "latest_version.txt";
-
     private String Status_Prefix = "";
     @Getter
     private Boolean DeathCounter_on_off = false;
