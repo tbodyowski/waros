@@ -33,7 +33,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.json.JSONObject;
+
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -52,8 +52,6 @@ public final class Main extends JavaPlugin implements Listener {
     private static final String GITHUB_API_URL = "https://api.github.com/repos/" + REPO_OWNER + "/" + REPO_NAME + "/releases/latest";
     private static final String GITHUB_TOKEN = "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";  // Your GitHub token here
     private static final String VERSION_FILE = "latest_version.txt";
-
-    private String lastKnownVersion;
 
     private String Status_Prefix = "";
     @Getter
@@ -75,8 +73,6 @@ public final class Main extends JavaPlugin implements Listener {
     public void onEnable() {
         saveDefaultConfig();
         instance = this;
-        lastKnownVersion = getConfig().getString("lastKnownVersion", "");
-        checkForUpdates();
         this.prefixManager = new PrefixManager();
         this.fileManager = new FileManager();
         invisibleRecipe = new NamespacedKey(this, "invisible-recipe");
@@ -104,7 +100,6 @@ public final class Main extends JavaPlugin implements Listener {
         getCommand("status").setExecutor(new StatusCommand());
         getCommand("status").setTabCompleter(new StatusTabComplete());
         PrefixManager.setScoreboard();
-        Bukkit.getScheduler().runTaskTimer(this, this::checkForUpdates, 0L, 1200L);
         startSaveAndRegisterPlayer();
     }
 
@@ -391,45 +386,6 @@ public final class Main extends JavaPlugin implements Listener {
                 PrefixManager.updatePrefix(all);
             }
         }
-    }
-
-
-
-
-    private void checkForUpdates() {
-        Bukkit.getScheduler().runTask(this, () -> {
-            try {
-                HttpURLConnection connection = (HttpURLConnection) new URL(GITHUB_API_URL).openConnection();
-                connection.setRequestMethod("GET");
-                connection.setRequestProperty("User-Agent", "MinecraftPlugin");
-                connection.setRequestProperty("Authorization", "token " + GITHUB_TOKEN);  // Add the Authorization header
-
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
-
-                JSONObject json = new JSONObject(response.toString());
-                String latestVersion = json.getString("tag_name");
-                String downloadUrl = json.getJSONArray("assets").getJSONObject(0).getString("browser_download_url");
-
-                // Check if the version is new
-                if (!latestVersion.equals(lastKnownVersion)) {
-                    Bukkit.getOnlinePlayers().forEach(player -> player.sendMessage("A new version of the plugin is available: " + latestVersion + " Download it here: " + downloadUrl));
-                    lastKnownVersion = latestVersion;
-                    // Save new version to config
-                    FileConfiguration config = getConfig();
-                    config.set("lastKnownVersion", latestVersion);
-                    saveConfig();
-                }
-
-            } catch (Exception e) {
-                getLogger().log(Level.SEVERE, "Error checking for updates", e);
-            }
-        });
     }
 }
 

@@ -24,7 +24,7 @@ version = '1.0'
             annotationProcessor 'org.projectlombok:lombok:1.18.30'
             testCompileOnly 'org.projectlombok:lombok:1.18.30'
             testAnnotationProcessor 'org.projectlombok:lombok:1.18.30'
-            compileOnly 'org.json:json:20210307'
+            implementation("com.technicjelle:UpdateChecker:2.5.1")
         }
 
         def targetJavaVersion = 22
