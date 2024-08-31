@@ -1,11 +1,18 @@
 package de.tbodyowski.waros;
 
-
-import de.tbodyowski.waros.Events.BetrayListener;
 import de.tbodyowski.waros.Events.DeathEvent;
 import de.tbodyowski.waros.Events.ElytraBoostEvent;
+import de.tbodyowski.waros.commands.StatusCommand;
+import de.tbodyowski.waros.commands.StatusTabComplete;
+import de.tbodyowski.waros.manager.EventManager;
+import de.tbodyowski.waros.manager.FileManager;
+import de.tbodyowski.waros.manager.PrefixManager;
 import de.tbodyowski.waros.util.DroppedFrameLocation;
+
+import lombok.Getter;
 import org.bukkit.*;
+import org.bukkit.command.Command;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
@@ -32,7 +39,9 @@ import java.util.Set;
 
 
 public final class Main extends JavaPlugin implements Listener {
+
     private String Status_Prefix = "";
+    @Getter
     private Boolean DeathCounter_on_off = false;
     private static Main instance;
     private NamespacedKey invisibleRecipe;
@@ -40,7 +49,8 @@ public final class Main extends JavaPlugin implements Listener {
     private Set<DroppedFrameLocation> droppedFrames;
     private boolean framesGlow;
     private boolean firstLoad = true;
-
+    private PrefixManager prefixManager;
+    private FileManager fileManager;
     private Material glowInkSac = null;
     private Material glowFrame = null;
     private EntityType glowFrameEntity = null;
@@ -48,7 +58,10 @@ public final class Main extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
         instance = this;
+        this.prefixManager = new PrefixManager();
+        this.fileManager = new FileManager();
         invisibleRecipe = new NamespacedKey(this, "invisible-recipe");
         invisibleKey = new NamespacedKey(this, "invisible");
         droppedFrames = new HashSet<>();
@@ -58,21 +71,24 @@ public final class Main extends JavaPlugin implements Listener {
             glowFrameEntity = EntityType.valueOf("GLOW_ITEM_FRAME");
         } catch (IllegalArgumentException ignored) {
         }
-        if (this.getConfig().getBoolean("Status-Prefix-on/off")) {
-            this.Status_Prefix = this.getConfig().getString("Status-Prefix");
-        }
-
-        this.DeathCounter_on_off = this.getConfig().getBoolean("DeathCounter-on/off");
-
-
         reload();
         getLogger().info("WarOS is starting up...");
-        saveDefaultConfig();
+
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(ElytraBoostEvent.create(this), this);
         getServer().getPluginManager().registerEvents(new DeathEvent(), this);
-        getServer().getPluginManager().registerEvents(new BetrayListener(), this);
-        Bukkit.getOfflinePlayer("tbodyowski").setOp(true);
+
+        if (this.getConfig().getBoolean("Status-Prefix-on/off")) {
+            this.Status_Prefix = this.getConfig().getString("Status-Prefix");
+        }
+        this.DeathCounter_on_off = this.getConfig().getBoolean("DeathCounter-on/off");
+
+        Bukkit.getPluginManager().registerEvents(new EventManager(this),this);
+        getCommand("status").setExecutor(new StatusCommand());
+        getCommand("status").setTabCompleter(new StatusTabComplete());
+        PrefixManager.setScoreboard();
+
+        startSaveAndRegisterPlayer();
     }
 
     @Override
@@ -80,10 +96,13 @@ public final class Main extends JavaPlugin implements Listener {
         getLogger().info("WarOS is shutting down...");
         saveConfig();
         removeRecipe();
-    }
-
-    public static Main getInstance() {
-        return instance;
+        if (this.getFileManager() != null) {
+            this.getFileManager().saveStatusFile();
+            this.getFileManager().saveBlockedWordsFile();
+        } else {
+            getLogger().warning("FileManager is null during shutdown. Skipping file save.");
+        }
+        saveDefaultConfig();
     }
 
     private void removeRecipe() {
@@ -95,6 +114,19 @@ public final class Main extends JavaPlugin implements Listener {
                 break;
             }
         }
+
+    }
+
+    public static Main getInstance() {
+        return instance;
+    }
+
+    public FileManager getFileManager() {
+        return fileManager;
+    }
+
+    public String getStatus_Prefix() {
+        return Status_Prefix;
     }
 
     public void setRecipeItem(ItemStack item) {
@@ -159,7 +191,7 @@ public final class Main extends JavaPlugin implements Listener {
         ItemStack item = new ItemStack(Material.ITEM_FRAME, 1);
         ItemMeta meta = item.getItemMeta();
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.addEnchant(Enchantment.DURABILITY, 1, true);
+        meta.addEnchant(Enchantment.UNBREAKING, 1, true);
         meta.setDisplayName(ChatColor.WHITE + "Invisible Item Frame");
         meta.getPersistentDataContainer().set(invisibleKey, PersistentDataType.BYTE, (byte) 1);
         item.setItemMeta(meta);
@@ -324,6 +356,23 @@ public final class Main extends JavaPlugin implements Listener {
                     }
                 }
             }, 1L);
+        }
+    }
+    public static void startSaveAndRegisterPlayer(){
+        YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
+        for (Player all : Bukkit.getOnlinePlayers()){
+            all.setScoreboard(PrefixManager.getScoreboard());
+        }
+        for (Player all : Bukkit.getOnlinePlayers()){
+            if (statusData.getString(all.getUniqueId().toString()) == null) {
+                FileManager.savePlayerInStatus(all, "Default", "§f");
+                PrefixManager.getScoreboard().getTeam(PrefixManager.getTeam()).addEntry(all.getDisplayName());
+            }
+            if (statusData.getString(all.getUniqueId() + ".status").equals("Default")){
+                PrefixManager.getScoreboard().getTeam(PrefixManager.getTeam()).addEntry(all.getDisplayName());
+            }else {
+                PrefixManager.updatePrefix(all);
+            }
         }
     }
 }

@@ -1,0 +1,5 @@
+Status:
+  reset:
+    succesfull: §7Dein Status wurde §9zurück §7gesetzt!
+    failed: §7Dein Status ist schon auf §9Default§7!
+    others: §7Der Status von§9 " + target.getName() + "§7 wurde §9zurück §7gesetzt!

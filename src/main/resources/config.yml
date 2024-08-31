@@ -1,0 +1,14 @@
+spawnRadius: 50
+multiplyValue: 5
+boostEnabled: true
+world: War 5
+message: Drücke %key% um dich zu Boosten.
+Status-Prefix: §7[§9Status§7]§r §7->§r
+Status-Prefix-on/off: true
+Join/Leave-Message-on/off: true
+JoinMessage: §7[§a+§7]§f
+LeaveMassage: §7[§c-§7]§f
+DeathCounter-on/off: true
+BlockedWords-Toggle: false
+Prefix-LengthLimit: 5
+Uppercase/LengthLimit-Toggle: false
