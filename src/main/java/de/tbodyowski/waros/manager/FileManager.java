@@ -1,7 +1,6 @@
 package de.tbodyowski.waros.manager;
 
 import de.tbodyowski.waros.Main;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 

@@ -1,6 +1,7 @@
 package de.tbodyowski.waros.commands;
 
 import de.tbodyowski.waros.Main;
+import de.tbodyowski.waros.manager.PrefixManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -8,7 +9,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import de.tbodyowski.waros.manager.PrefixManager;
 
 import static de.tbodyowski.waros.manager.FileManager.*;
 
