@@ -27,12 +27,12 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: waros-1.0.jar
-          path: build/libs/waros-1.0.jar
+          name: waros-all.jar
+          path: build/libs/waros-all.jar
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/libs/waros-1.0.jar
+          files: build/libs/waros-all.jar
         env:
           GITHUB_TOKEN: ${{ secrets.MY_PAT }}
