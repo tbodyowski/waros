@@ -1,5 +1,6 @@
 package de.tbodyowski.waros;
 
+import de.tbodyowski.waros.Events.ChatEvent;
 import de.tbodyowski.waros.Events.DeathEvent;
 import de.tbodyowski.waros.Events.ElytraBoostEvent;
 import de.tbodyowski.waros.commands.StatusCommand;
@@ -8,6 +9,9 @@ import de.tbodyowski.waros.manager.EventManager;
 import de.tbodyowski.waros.manager.FileManager;
 import de.tbodyowski.waros.manager.PrefixManager;
 import de.tbodyowski.waros.util.DroppedFrameLocation;
+import de.tbodyowski.waros.util.Websocket;
+import io.socket.client.IO;
+import io.socket.client.Socket;
 import lombok.Getter;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -31,9 +35,12 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 public final class Main extends JavaPlugin implements Listener {
@@ -52,11 +59,14 @@ public final class Main extends JavaPlugin implements Listener {
     private Material glowInkSac = null;
     private Material glowFrame = null;
     private EntityType glowFrameEntity = null;
+    private Socket socket;
+    private Websocket websocket;
 
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        initSocket();
         instance = this;
         this.prefixManager = new PrefixManager();
         this.fileManager = new FileManager();
@@ -75,6 +85,7 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(ElytraBoostEvent.create(this), this);
         getServer().getPluginManager().registerEvents(new DeathEvent(), this);
+        getServer().getPluginManager().registerEvents(new ChatEvent(), this);
 
         if (this.getConfig().getBoolean("Status-Prefix-on/off")) {
             this.Status_Prefix = this.getConfig().getString("Status-Prefix");
@@ -102,6 +113,20 @@ public final class Main extends JavaPlugin implements Listener {
         saveDefaultConfig();
     }
 
+    private void initSocket(){
+        try {
+            socket = IO.socket("http://localhost:3000");
+            websocket = new Websocket(socket);
+            websocket.connect();
+        } catch (URISyntaxException e) {
+            Logger.getLogger("minecraft").log(Level.SEVERE, "URISyntaxException while connecting to WebSocket", e);
+            getServer().getPluginManager().disablePlugin(this);
+        } catch (Exception e) {
+            Logger.getLogger("minecraft").log(Level.SEVERE, "Exception while connecting to WebSocket", e);
+            getServer().getPluginManager().disablePlugin(this);
+        }
+    }
+
     private void removeRecipe() {
         Iterator<Recipe> iter = getServer().recipeIterator();
         while (iter.hasNext()) {
@@ -124,6 +149,10 @@ public final class Main extends JavaPlugin implements Listener {
 
     public String getStatus_Prefix() {
         return Status_Prefix;
+    }
+
+    public Websocket getWebsocket() {
+        return websocket;
     }
 
     public void setRecipeItem(ItemStack item) {
@@ -217,8 +246,6 @@ public final class Main extends JavaPlugin implements Listener {
                     foundFrame = true;
                     continue;
                 }
-
-                // Item isn't what we're looking for
                 return;
             }
 
@@ -240,7 +267,6 @@ public final class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        // Get the frame item that the player placed
         ItemStack frame;
         Player p = event.getPlayer();
         if (p.getInventory().getItemInMainHand().getType() == Material.ITEM_FRAME ||
@@ -253,7 +279,6 @@ public final class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        // If the frame item has the invisible tag, make the placed item frame invisible
         if (frame.getItemMeta().getPersistentDataContainer().has(invisibleKey, PersistentDataType.BYTE)) {
             if (!p.hasPermission("survivalinvisiframes.place")) {
                 event.setCancelled(true);
@@ -276,9 +301,7 @@ public final class Main extends JavaPlugin implements Listener {
             return;
         }
 
-        // This is the dumbest possible way to change the drops of an item frame
-        // Apparently, there's no api to change the dropped item
-        // So this sets up a bounding box that checks for items near the frame and converts them
+
         DroppedFrameLocation droppedFrameLocation = new DroppedFrameLocation(event.getEntity().getLocation());
         droppedFrames.add(droppedFrameLocation);
         droppedFrameLocation.setRemoval((new BukkitRunnable() {
@@ -373,6 +396,3 @@ public final class Main extends JavaPlugin implements Listener {
         }
     }
 }
-
-
-
