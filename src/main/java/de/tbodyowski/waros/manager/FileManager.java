@@ -22,7 +22,7 @@ public class FileManager {
     private YamlConfiguration guildData;
 
 
-    public FileManager(File linkFile){
+    public FileManager(){
         File folder = new File("./plugins/WarOS/");
         this.statusDataFile = new File(folder, "status.yml");
         this.blockedWordsDataFile = new File(folder, "blockedWords.yml");
