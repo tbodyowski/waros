@@ -10,7 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import static de.tbodyowski.waros.manager.FileManager.*;
+import static de.tbodyowski.waros.manager.FileManager.StringIsBlocked;
+import static de.tbodyowski.waros.manager.FileManager.playerIsRegistered;
 
 public class StatusCommand implements CommandExecutor {
 
@@ -32,7 +33,7 @@ public class StatusCommand implements CommandExecutor {
                     switch (args.length){
                         case 1 ->{
                             if (!statusData.getString(p.getUniqueId() + ".status").equals("Default")) {
-                                savePlayerInStatus(p, "Default", "§f");
+                                Main.getInstance().getFileManager().savePlayerInStatus(p, "Default", "§f");
                                 PrefixManager.updatePrefix(p);
                                 p.sendMessage(Main.getInstance().getStatus_Prefix() +
                                         "§7Dein Status wurde §9zurück §7gesetzt!");
@@ -46,7 +47,7 @@ public class StatusCommand implements CommandExecutor {
                                 Player target = Bukkit.getPlayerExact(args[1]);
                                 assert target != null;
                                 if (playerIsRegistered(target)) {
-                                    savePlayerInStatus(target, "Default", "§f");
+                                    Main.getInstance().getFileManager().savePlayerInStatus(target, "Default", "§f");
                                     PrefixManager.updatePrefix(target);
                                     p.sendMessage(Main.getInstance().getStatus_Prefix()
                                             + "§7Der Status von§9 "
@@ -76,7 +77,7 @@ public class StatusCommand implements CommandExecutor {
                                 }
                             }
                             String status = args[1];
-                            savePlayerInStatus(p, status, "§f");
+                            Main.getInstance().getFileManager().savePlayerInStatus(p, status, "§f");
                             PrefixManager.updatePrefix(p);
                             p.sendMessage(Main.getInstance().getStatus_Prefix() +
                                     "§7Dein Status wurde auf §f" +
@@ -93,9 +94,9 @@ public class StatusCommand implements CommandExecutor {
                             }
                             String status = args[1];
                             String arg2 = args[2].replace('&', '§');
-                            String color = PrefixManager.getRawFromColor(arg2);
+                            String color = Main.getInstance().getPrefixManager().getRawFromColor(arg2);
                             if (PrefixManager.isColorAColor(color)) {
-                                savePlayerInStatus(p, status, color);
+                                Main.getInstance().getFileManager().savePlayerInStatus(p, status, color);
                                 PrefixManager.updatePrefix(p);
                                 p.sendMessage(Main.getInstance().getStatus_Prefix() +
                                         "§7Dein Status wurde auf " +
@@ -103,7 +104,7 @@ public class StatusCommand implements CommandExecutor {
                                         ChatColor.translateAlternateColorCodes('&', status) +
                                         "§7 mit der Farbe " +
                                         color +
-                                        PrefixManager.getColorFromRaw(color) +
+                                        Main.getInstance().getPrefixManager().getColorFromRaw(color) +
                                         "§7 gesetzt!");
                             } else
                                 p.sendMessage(Main.getInstance().getStatus_Prefix() +
@@ -113,7 +114,7 @@ public class StatusCommand implements CommandExecutor {
                             if (p.hasPermission("status.admin")) {
                                 String status = args[1];
                                 String arg2 = args[2].replace('&', '§');
-                                String color = PrefixManager.getRawFromColor(arg2);
+                                String color = Main.getInstance().getPrefixManager().getRawFromColor(arg2);
                                 if (!StringIsBlocked(args[1])) {
                                     if (UppercaseLengthLimitToggle) {
                                         if (args[1].length() >= Prefix_LengthLimit) {
@@ -124,10 +125,10 @@ public class StatusCommand implements CommandExecutor {
                                     }
                                     Player target = Bukkit.getPlayerExact(args[3]);
                                     if (PrefixManager.isColorAColor(color)) {
-                                        savePlayerInStatus(target, status, color);
+                                        Main.getInstance().getFileManager().savePlayerInStatus(target, status, color);
                                         PrefixManager.updatePrefix(target);
                                         for (Player all : Bukkit.getOnlinePlayers()) {
-                                            all.setScoreboard(PrefixManager.getScoreboard());
+                                            all.setScoreboard(Main.getInstance().getPrefixManager().getScoreboard(p.getPlayer()));
                                         }
                                         p.sendMessage(Main.getInstance().getStatus_Prefix()
                                                 + "§7Der Status von§9 "
@@ -137,7 +138,7 @@ public class StatusCommand implements CommandExecutor {
                                                 + ChatColor.translateAlternateColorCodes('&', status)
                                                 + "§7 mit der Farbe "
                                                 + color
-                                                + PrefixManager.getColorFromRaw(color)
+                                                + Main.getInstance().getPrefixManager().getColorFromRaw(color)
                                                 + "§7 gesetzt!"
                                         );
                                         target.sendMessage(Main.getInstance().getStatus_Prefix()
@@ -148,7 +149,7 @@ public class StatusCommand implements CommandExecutor {
                                                 + ChatColor.translateAlternateColorCodes('&', status)
                                                 + "§7 mit der Farbe "
                                                 + color
-                                                + PrefixManager.getColorFromRaw(color)
+                                                + Main.getInstance().getPrefixManager().getColorFromRaw(color)
                                                 + "§7 gesetzt!"
                                         );
                                     } else
@@ -178,7 +179,7 @@ public class StatusCommand implements CommandExecutor {
                                         ChatColor.translateAlternateColorCodes('&', status) +
                                         "§7 mit der Farbe " +
                                         color +
-                                        PrefixManager.getColorFromRaw(color));
+                                        Main.getInstance().getPrefixManager().getColorFromRaw(color));
                             }
                         }
                         case 2 -> {
@@ -197,7 +198,7 @@ public class StatusCommand implements CommandExecutor {
                                             ChatColor.translateAlternateColorCodes('&', status) +
                                             "§7 mit der Farbe " +
                                             color +
-                                            PrefixManager.getColorFromRaw(color));
+                                            Main.getInstance().getPrefixManager().getColorFromRaw(color));
                                 } else {
                                     p.sendMessage(Main.getInstance().getStatus_Prefix() + "§7Der Spieler wurde nicht gefunden!");
                                 }

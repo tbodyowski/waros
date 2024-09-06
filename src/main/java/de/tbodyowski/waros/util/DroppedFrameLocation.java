@@ -1,7 +1,5 @@
 package de.tbodyowski.waros.util;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.Location;
 import org.bukkit.entity.Item;
 import org.bukkit.scheduler.BukkitTask;
@@ -9,8 +7,6 @@ import org.bukkit.util.BoundingBox;
 
 public class DroppedFrameLocation {
     private final BoundingBox box;
-    @Getter
-    @Setter
     private BukkitTask removal;
 
     public DroppedFrameLocation(Location location) {
@@ -19,4 +15,14 @@ public class DroppedFrameLocation {
     public boolean isFrame(Item item) {
         return box.contains(item.getBoundingBox());
     }
+
+
+    public BukkitTask getRemoval() {
+        return removal;
+    }
+
+    public void setRemoval(BukkitTask removal) {
+        this.removal = removal;
+    }
 }
+

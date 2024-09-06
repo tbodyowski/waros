@@ -83,6 +83,13 @@ public class Websocket {
             logger.log(Level.WARNING, "Cannot send message. WebSocket is not connected.");
         }
     }
+    public void link(String message) {
+        if (socket != null && socket.connected()) {
+            socket.emit("link", message);
+        } else {
+            logger.log(Level.WARNING, "Cannot send message. WebSocket is not connected.");
+        }
+    }
 
     public void disconnect() {
         if (socket != null && socket.connected()) {

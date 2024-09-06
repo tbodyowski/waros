@@ -8,3 +8,9 @@ description: Minecraft War`s main operating system
 commands:
   status:
     usage: /status <Status> <Color>
+  guild:
+    description: Guild command
+  admin:
+    description: Open an admin Inventory
+    permission: waros.admin
+    permission-message: Das darfst du leider nicht machen

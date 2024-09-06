@@ -3,16 +3,14 @@ package de.tbodyowski.waros;
 import de.tbodyowski.waros.Events.ChatEvent;
 import de.tbodyowski.waros.Events.DeathEvent;
 import de.tbodyowski.waros.Events.ElytraBoostEvent;
-import de.tbodyowski.waros.commands.StatusCommand;
-import de.tbodyowski.waros.commands.StatusTabComplete;
-import de.tbodyowski.waros.manager.EventManager;
-import de.tbodyowski.waros.manager.FileManager;
-import de.tbodyowski.waros.manager.PrefixManager;
+import de.tbodyowski.waros.Events.GUIClickEvent;
+import de.tbodyowski.waros.commands.*;
+import de.tbodyowski.waros.inventory.admin.GuildAdminInventory;
+import de.tbodyowski.waros.manager.*;
 import de.tbodyowski.waros.util.DroppedFrameLocation;
 import de.tbodyowski.waros.util.Websocket;
 import io.socket.client.IO;
 import io.socket.client.Socket;
-import lombok.Getter;
 import org.bukkit.*;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -46,7 +44,6 @@ import java.util.logging.Logger;
 public final class Main extends JavaPlugin implements Listener {
 
     private String Status_Prefix = "";
-    @Getter
     private Boolean DeathCounter_on_off = false;
     private static Main instance;
     private NamespacedKey invisibleRecipe;
@@ -61,6 +58,9 @@ public final class Main extends JavaPlugin implements Listener {
     private EntityType glowFrameEntity = null;
     private Socket socket;
     private Websocket websocket;
+    private GuildManager guildManager;
+    private ConfigVarManager configVarManager;
+    private GuildAdminInventory guildAdminInventory;
 
 
     @Override
@@ -69,9 +69,14 @@ public final class Main extends JavaPlugin implements Listener {
         initSocket();
         instance = this;
         this.prefixManager = new PrefixManager();
+        this.configVarManager = new ConfigVarManager();
+        this.guildAdminInventory = new GuildAdminInventory();
         this.fileManager = new FileManager();
+        guildManager = new GuildManager();
         invisibleRecipe = new NamespacedKey(this, "invisible-recipe");
         invisibleKey = new NamespacedKey(this, "invisible");
+        configVarManager.updateVar();
+
         droppedFrames = new HashSet<>();
         try {
             glowInkSac = Material.valueOf("GLOW_INK_SAC");
@@ -86,17 +91,26 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(ElytraBoostEvent.create(this), this);
         getServer().getPluginManager().registerEvents(new DeathEvent(), this);
         getServer().getPluginManager().registerEvents(new ChatEvent(), this);
+        getServer().getPluginManager().registerEvents(new GUIClickEvent(), this);
 
         if (this.getConfig().getBoolean("Status-Prefix-on/off")) {
             this.Status_Prefix = this.getConfig().getString("Status-Prefix");
         }
         this.DeathCounter_on_off = this.getConfig().getBoolean("DeathCounter-on/off");
 
-        Bukkit.getPluginManager().registerEvents(new EventManager(this),this);
+        Bukkit.getPluginManager().registerEvents(new EventManager(),this);
+        getCommand("admin").setExecutor(new AdminCommand());
         getCommand("status").setExecutor(new StatusCommand());
         getCommand("status").setTabCompleter(new StatusTabComplete());
-        PrefixManager.setScoreboard();
+        getCommand("guild").setExecutor(new GuildCommand(guildManager));
+        getCommand("guild").setTabCompleter(new GuildTabComplete(guildManager));
+        getPrefixManager().setScoreboard();
         startSaveAndRegisterPlayer();
+
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
+
     }
 
     @Override
@@ -139,12 +153,24 @@ public final class Main extends JavaPlugin implements Listener {
 
     }
 
+    public Boolean getDeathCounter_on_off() {
+        return DeathCounter_on_off;
+    }
+
     public static Main getInstance() {
         return instance;
     }
 
+    public GuildAdminInventory getGuildAdminInventory() {
+        return guildAdminInventory;
+    }
+
     public FileManager getFileManager() {
         return fileManager;
+    }
+
+    public GuildManager getGuildManager() {
+        return guildManager;
     }
 
     public String getStatus_Prefix() {
@@ -378,21 +404,28 @@ public final class Main extends JavaPlugin implements Listener {
             }, 1L);
         }
     }
-    public static void startSaveAndRegisterPlayer(){
+    public static void startSaveAndRegisterPlayer() {
         YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
-        for (Player all : Bukkit.getOnlinePlayers()){
-            all.setScoreboard(PrefixManager.getScoreboard());
+        for (Player all : Bukkit.getOnlinePlayers()) {
+            all.setScoreboard(Main.getInstance().getPrefixManager().getScoreboard(all));
         }
-        for (Player all : Bukkit.getOnlinePlayers()){
+        for (Player all : Bukkit.getOnlinePlayers()) {
             if (statusData.getString(all.getUniqueId().toString()) == null) {
-                FileManager.savePlayerInStatus(all, "Default", "§f");
-                PrefixManager.getScoreboard().getTeam(PrefixManager.getTeam()).addEntry(all.getDisplayName());
+                Main.getInstance().getFileManager().savePlayerInStatus(all, "Default", "§f");
+                Main.getInstance().getPrefixManager().getScoreboard(all).getTeam(Main.getInstance().getPrefixManager().getTeam()).addEntry(all.getDisplayName());
             }
-            if (statusData.getString(all.getUniqueId() + ".status").equals("Default")){
-                PrefixManager.getScoreboard().getTeam(PrefixManager.getTeam()).addEntry(all.getDisplayName());
-            }else {
-                PrefixManager.updatePrefix(all);
+            if (statusData.getString(all.getUniqueId() + ".status").equals("Default")) {
+                Main.getInstance().getPrefixManager().getScoreboard(all).getTeam(Main.getInstance().getPrefixManager().getTeam()).addEntry(all.getDisplayName());
+            } else {
+                Main.getInstance().getPrefixManager().updatePrefix(all);
             }
         }
+    }
+    public ConfigVarManager getConfigVarManager() {
+        return configVarManager;
+    }
+
+    public PrefixManager getPrefixManager() {
+        return prefixManager;
     }
 }

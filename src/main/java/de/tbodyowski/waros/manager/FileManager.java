@@ -1,11 +1,14 @@
 package de.tbodyowski.waros.manager;
 
 import de.tbodyowski.waros.Main;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class FileManager {
 
@@ -15,47 +18,29 @@ public class FileManager {
     private final File blockedWordsDataFile;
     private YamlConfiguration blockedWordsData;
 
-    public FileManager(){
+    private final File guildDataFile;
+    private YamlConfiguration guildData;
+
+
+    public FileManager(File linkFile){
         File folder = new File("./plugins/WarOS/");
         this.statusDataFile = new File(folder, "status.yml");
+        this.blockedWordsDataFile = new File(folder, "blockedWords.yml");
+        this.guildDataFile = new File(folder, "guilds.yml");
 
-        File folder2 = new File("./plugins/WarOS/");
-        this.blockedWordsDataFile = new File(folder2, "blockedWords.yml");
-
-        try{
+        try {
             if (!folder.exists()) folder.mkdirs();
             if (!statusDataFile.exists()) statusDataFile.createNewFile();
             statusData = YamlConfiguration.loadConfiguration(statusDataFile);
 
-            if (!folder2.exists()) folder2.mkdirs();
             if (!blockedWordsDataFile.exists()) blockedWordsDataFile.createNewFile();
             blockedWordsData = YamlConfiguration.loadConfiguration(blockedWordsDataFile);
 
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
+            if (!guildDataFile.exists()) guildDataFile.createNewFile();
+            guildData = YamlConfiguration.loadConfiguration(guildDataFile);
 
-    public void reloadStatusFile(){
-        YamlConfiguration.loadConfiguration(statusDataFile);
-    }
 
-    public void reloadBlockedWordsFile(){
-        YamlConfiguration.loadConfiguration(blockedWordsDataFile);
-    }
-
-    public void saveStatusFile(){
-        try {
-            statusData.save(statusDataFile);
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
-
-    public void saveBlockedWordsFile(){
-        try {
-            blockedWordsData.save(blockedWordsDataFile);
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -65,91 +50,115 @@ public class FileManager {
         return statusData;
     }
 
+    public void reloadStatusFile() {
+        YamlConfiguration.loadConfiguration(statusDataFile);
+    }
+
+    public void reloadBlockedWordsFile() {
+        YamlConfiguration.loadConfiguration(blockedWordsDataFile);
+    }
+
+    public void saveStatusFile() {
+        try {
+            statusData.save(statusDataFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        reloadStatusFile();
+    }
+    public void saveBlockedWordsFile() {
+        try {
+            blockedWordsData.save(blockedWordsDataFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveStatusData() {
+        try {
+            statusData.save(statusDataFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public YamlConfiguration getBlockedWordsData() {
         reloadBlockedWordsFile();
         return blockedWordsData;
     }
 
-    public static void savePlayerInStatus(Player player, String status, String color){
-        YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
-        int value = 1;
-        Boolean afk = false;
+    public void saveBlockedWordsData() {
+        try {
+            blockedWordsData.save(blockedWordsDataFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        if (statusData.contains(player.getUniqueId().toString())){
-            value = statusData.getConfigurationSection(player.getUniqueId().toString()).getKeys(false).size() + 1;
-            afk = false;
+    public YamlConfiguration getGuildData() {
+        return guildData;
+    }
+
+    public void saveGuildData() {
+        try {
+            guildData.save(guildDataFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Utility methods for player registration
+    public static boolean playerIsRegistered(Player player) {
+        YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
+        return statusData.contains(player.getUniqueId().toString());
+    }
+
+    public void savePlayerInStatus(Player player, String status, String color) {
+        if (playerIsRegistered(player)){
+            statusData.set(player.getUniqueId() + ".player", player.getName());
+            statusData.set(player.getUniqueId() + ".status", status);
+            statusData.set(player.getUniqueId() + ".color", color);
+        }else{
+            savePlayerInStatusWithPersonalWithAfk(player, status, color, true, true, true, true, false);
+        }
+    }
+    public void savePlayerInStatusWithPersonalWithAfk(Player player, String status, String color,
+                                                      Boolean Status_Prefix_on_off,
+                                                      Boolean Join_Leave_Message_on_off,
+                                                      Boolean DeathCounter_on_off,
+                                                      Boolean AutoAfk_on_off,
+                                                      Boolean Afk) {
+
+        int value = 1;
+
+        if (statusData.contains(player.getUniqueId().toString())) {
+            value = Objects.requireNonNull(statusData.getConfigurationSection(player.getUniqueId().toString())).getKeys(false).size() + 1;
         }
 
         statusData.set(player.getUniqueId() + ".player", player.getName());
         statusData.set(player.getUniqueId() + ".status", status);
         statusData.set(player.getUniqueId() + ".color", color);
-        statusData.set(player.getUniqueId() + ".afk" , afk);
+        statusData.set(player.getUniqueId() + ".Afk", Afk);
+
+        //personal Settings
+        ConfigurationSection playerSettings = statusData.createSection(player.getUniqueId()+".p-settings");
+        playerSettings.set(".Status_Prefix_on_off",Status_Prefix_on_off);
+        playerSettings.set(".Join_Leave_Message_on_off",Join_Leave_Message_on_off);
+        playerSettings.set(".DeathCounter_on_off",DeathCounter_on_off);
+        playerSettings.set(".AutoAfk_on_off",AutoAfk_on_off);
 
         Main.getInstance().getFileManager().saveStatusFile();
-
-    }
-    public static Boolean playerIsRegistered(Player player){
-        YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
-        return statusData.getString(player.getUniqueId().toString()) != null;
     }
 
-    public static Boolean StringIsBlocked(String string){
-        if (Main.getInstance().getConfig().getBoolean("BlockedWords-Toggle")) {
-            YamlConfiguration blockedWordsData = Main.getInstance().getFileManager().getBlockedWordsData();
-            String[] words = string.split(" ");
-            List<String> customWords = blockedWordsData.getStringList("cm-baned-words");
-            List<String> blockedWords = blockedWordsData.getStringList("banned-words");
-            List<String> blockedWords_enl = blockedWordsData.getStringList("banned-words-enl");
-            List<String> blockedWords_gl_enl = blockedWordsData.getStringList("banned-words-gl-enl");
-
-            for (String word : words) {
-                for (String bWords : customWords) {
-                    if (word.equalsIgnoreCase(bWords)) {
-                        return true;
-                    }
-                }
+    public static boolean StringIsBlocked(String message) {
+        YamlConfiguration blockedWordsData = Main.getInstance().getFileManager().getBlockedWordsData();
+        List<String> blockedWords = blockedWordsData.getStringList("blockedWords");
+        for (String word : blockedWords) {
+            if (message.contains(word)) {
+                return true;
             }
-
-            for (String word : words) {
-                for (String bWords : blockedWords) {
-                    if (word.equalsIgnoreCase(bWords)) {
-                        return true;
-                    }
-                }
-            }
-
-            for (String word : words) {
-                for (String bWords : blockedWords_enl) {
-                    if (word.equalsIgnoreCase(bWords)) {
-                        return true;
-                    }
-                }
-            }
-
-            for (String word : words) {
-                for (String bWords : blockedWords_gl_enl) {
-                    if (word.equalsIgnoreCase(bWords)) {
-                        return true;
-                    }
-                }
-            }
-
         }
         return false;
-    }
-
-    private void copy(InputStream in, File file) {
-        try {
-            OutputStream out = new FileOutputStream(file);
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            out.close();
-            in.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
