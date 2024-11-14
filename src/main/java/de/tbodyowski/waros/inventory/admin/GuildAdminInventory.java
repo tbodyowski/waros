@@ -7,7 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
 public class GuildAdminInventory {
@@ -32,7 +31,6 @@ public class GuildAdminInventory {
     public Inventory getGuildView(String guildName) {
         guildView.clear();
 
-        // Display the guild name as the first item
         guildView.setItem(4, new ItemBuilder(Material.GRAY_STAINED_GLASS_PANE).setDisplayName(guildName).build());
 
         // Display members and other guild info
@@ -40,7 +38,6 @@ public class GuildAdminInventory {
                 .setLore("Members")
                 .build());
 
-        // Get the guild owner and check for null
         Player owner = Main.getInstance().getGuildManager().getOwner(guildName);
         String ownerName = (owner != null) ? owner.getName() : "Unknown";
 
@@ -63,6 +60,10 @@ public class GuildAdminInventory {
             guildPlayersView.addItem(createPlayerSkull(player));
         }
 
+        return guildPlayersView;
+    }
+
+    public Inventory getGuildPlayersView() {
         return guildPlayersView;
     }
 

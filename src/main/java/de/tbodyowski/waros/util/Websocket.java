@@ -1,8 +1,11 @@
 package de.tbodyowski.waros.util;
 
+import de.tbodyowski.waros.Main;
+
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.net.InetAddress;
@@ -62,6 +65,32 @@ public class Websocket {
                         } else {
                             logger.log(Level.WARNING, "Received unexpected message type: {0}", message.getClass().getName());
                         }
+                    }
+                }
+            }).on("whitelist", new Emitter.Listener() {
+                @Override
+                public void call(Object... objects) {
+                    if (objects.length > 0) {
+                        Object message = objects[0];
+                        try {
+                            logger.log(Level.INFO, "Received message: {0}", message);
+
+                            // Get OfflinePlayer (can represent both online and offline players)
+                            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(String.valueOf(message));
+
+                            if (offlinePlayer != null) {
+                                Bukkit.getScheduler().runTask(Main.getInstance(), () -> {
+                                    offlinePlayer.setWhitelisted(true);
+                                    logger.log(Level.INFO, "Whitelisted player: {0}", offlinePlayer.getName());
+                                });
+                            } else {
+                                logger.log(Level.WARNING, "Player not found or not valid: {0}", message);
+                            }
+                        } catch (Exception e) {
+
+                        }
+                    } else {
+                        logger.log(Level.WARNING, "Received unexpected message type.");
                     }
                 }
             });

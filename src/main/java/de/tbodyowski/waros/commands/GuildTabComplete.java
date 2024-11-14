@@ -24,16 +24,11 @@ public class GuildTabComplete implements TabCompleter {
             return null;
         }
 
-        Player player = (Player) sender;
-
-        // Handle different commands and arguments
         if (args.length == 1) {
-            // First argument for /guild command
             if (args[0].isEmpty()) {
-                return Arrays.asList("create", "invite", "accept", "leave", "list", "delete");
+                return Arrays.asList("create","chat", "invite", "accept", "leave", "list", "delete");
             }
         } else if (args.length == 2) {
-            // Second argument for specific commands
             if ("invite".equalsIgnoreCase(args[0]) || "accept".equalsIgnoreCase(args[0])) {
                 List<String> guilds = new ArrayList<>(guildManager.getAllGuildNames());
                 return filterList(guilds, args[1]);

@@ -10,7 +10,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -56,6 +55,9 @@ public class GUIClickEvent implements Listener {
                 }
             }
             return;
+        }
+        if (event.getClickedInventory().equals(Main.getInstance().getGuildAdminInventory().getGuildPlayersView())){
+            event.setCancelled(true);
         }
     }
     public void onInventoryClose(InventoryCloseEvent event) {

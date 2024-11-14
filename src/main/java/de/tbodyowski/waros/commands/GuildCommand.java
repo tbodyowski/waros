@@ -108,6 +108,23 @@ public class GuildCommand implements CommandExecutor {
                         player.sendMessage(ChatColor.RED + "Failed to delete the guild.");
                     }
                 break;
+            case "chat":
+                if (args.length < 2) {
+                    player.sendMessage(ChatColor.RED + "Usage: /guild chat <message>");
+                    return true;
+                }
+
+                String guildNamec = guildManager.getGuildByPlayer(player.getUniqueId());
+                if (guildNamec == null) {
+                    player.sendMessage(ChatColor.RED + "You are not in a guild.");
+                    return true;
+                }
+                String message = String.join(" ", args).substring(5); // Removes "chat " from the start
+                for (Player member : guildManager.getPlayersInGuild(guildNamec)) {
+                    member.sendMessage(ChatColor.GOLD + "[Guild] " + player.getName() + ": " + ChatColor.WHITE + message);
+                }
+
+                break;
 
             default:
                 player.sendMessage(ChatColor.RED + "Unknown sub-command.");

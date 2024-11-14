@@ -13,3 +13,5 @@ BlockedWords-Toggle: false
 Prefix-LengthLimit: 5
 Uppercase/LengthLimit-Toggle: false
 lastKnownVersion: ""
+WebsocketAddress: "http://localhost:3000"
+WebsocketToken: "your-websocket-token"

@@ -33,6 +33,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -61,12 +62,12 @@ public final class Main extends JavaPlugin implements Listener {
     private GuildManager guildManager;
     private ConfigVarManager configVarManager;
     private GuildAdminInventory guildAdminInventory;
+    File configFile = new File(getDataFolder(), "config.yml");
 
 
     @Override
     public void onEnable() {
-        saveDefaultConfig();
-        initSocket();
+        if (!configFile.exists()) saveDefaultConfig();
         instance = this;
         this.prefixManager = new PrefixManager();
         this.configVarManager = new ConfigVarManager();
@@ -104,9 +105,11 @@ public final class Main extends JavaPlugin implements Listener {
         getCommand("status").setTabCompleter(new StatusTabComplete());
         getCommand("guild").setExecutor(new GuildCommand(guildManager));
         getCommand("guild").setTabCompleter(new GuildTabComplete(guildManager));
+        getCommand("vanish").setExecutor(new VanishCommand());
+
         getPrefixManager().setScoreboard();
         startSaveAndRegisterPlayer();
-
+        initSocket();
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
         }
@@ -124,7 +127,6 @@ public final class Main extends JavaPlugin implements Listener {
         } else {
             getLogger().warning("FileManager is null during shutdown. Skipping file save.");
         }
-        saveDefaultConfig();
     }
 
     private void initSocket(){
@@ -188,7 +190,7 @@ public final class Main extends JavaPlugin implements Listener {
     }
 
     public void reload() {
-        saveDefaultConfig();
+        saveConfig();
         reloadConfig();
         getConfig().options().copyDefaults(true);
         saveConfig();
