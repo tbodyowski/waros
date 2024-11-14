@@ -62,6 +62,7 @@ public class EventManager implements Listener {
             p.sendMessage(ChatColor.YELLOW + "Use /guild accept <guild name> to join.");
         }
         Main.getInstance().getPrefixManager().updatePrefixAllPlayers();
+        event.getPlayer().sendMessage("§f§a§i§r§x§a§e§r§o");
     }
 
     @EventHandler

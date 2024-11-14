@@ -14,3 +14,14 @@ commands:
     description: Open an admin Inventory
     permission: waros.admin
     permission-message: Das darfst du leider nicht machen
+  border:
+    description: Manages multiple particle borders.
+    usage: /border <create|setradius|setcenter|delete> <name> [radius]
+    permissions:
+      border.admin:
+        description: Allows the player to create and manage particle borders.
+        default: op
+  vanish:
+    description: Hide yourself from other Players
+    usage: /vanish {Player}
+    permission: waros.vanish
