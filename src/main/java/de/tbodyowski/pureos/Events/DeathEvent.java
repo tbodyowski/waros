@@ -1,4 +1,4 @@
-package de.tbodyowski.waros.Events;
+package de.tbodyowski.pureos.Events;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

@@ -1,9 +1,9 @@
-package de.tbodyowski.waros;
+package de.tbodyowski.pureos;
 
-import de.tbodyowski.waros.Events.*;
-import de.tbodyowski.waros.commands.*;
-import de.tbodyowski.waros.manager.*;
-import de.tbodyowski.waros.util.DroppedFrameLocation;
+import de.tbodyowski.pureos.Events.*;
+import de.tbodyowski.pureos.commands.*;
+import de.tbodyowski.pureos.manager.*;
+import de.tbodyowski.pureos.util.DroppedFrameLocation;
 import org.bukkit.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -37,7 +37,7 @@ import java.util.Set;
 public final class Main extends JavaPlugin implements Listener {
 
     private String Status_Prefix = "";
-    private Boolean DeathCounter_on_off = false;
+    private Boolean DeathCounter_on_off = (Boolean) false;
     private static Main instance;
     private NamespacedKey invisibleRecipe;
     private static NamespacedKey invisibleKey;
@@ -94,7 +94,7 @@ public final class Main extends JavaPlugin implements Listener {
         if (this.getConfig().getBoolean("Status-Prefix-on/off")) {
             this.Status_Prefix = this.getConfig().getString("Status-Prefix");
         }
-        this.DeathCounter_on_off = this.getConfig().getBoolean("DeathCounter-on/off");
+        this.DeathCounter_on_off = (Boolean) this.getConfig().getBoolean("DeathCounter-on/off");
 
         Bukkit.getPluginManager().registerEvents(new EventManager(),this);
         getCommand("status").setExecutor(new StatusCommand());

@@ -1,23 +1,21 @@
-name: WarOS
+name: PureOS
 version: '${version}'
-main: de.tbodyowski.waros.Main
+main: de.tbodyowski.pureos.Main
 api-version: '1.21'
 load: POSTWORLD
 authors: [tbodyowski]
-description: Minecraft War`s main operating system
+description: PureCraft`s main operating system
 commands:
   status:
     usage: /status <Status> <Color>
-  guild:
-    description: Guild command
   admin:
     description: Open an admin Inventory
-    permission: waros.admin
+    permission: pureos.admin
     permission-message: Das darfst du leider nicht machen
   vanish:
     description: Hide yourself from other Players
     usage: /vanish {Player}
-    permission: waros.vanish
+    permission: pureos.vanish
   sit:
     description: Allows you to sit down
     usage: /sit

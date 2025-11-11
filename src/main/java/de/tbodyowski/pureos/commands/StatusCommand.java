@@ -1,7 +1,7 @@
-package de.tbodyowski.waros.commands;
+package de.tbodyowski.pureos.commands;
 
-import de.tbodyowski.waros.Main;
-import de.tbodyowski.waros.manager.PrefixManager;
+import de.tbodyowski.pureos.Main;
+import de.tbodyowski.pureos.manager.PrefixManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -10,8 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import static de.tbodyowski.waros.manager.FileManager.StringIsBlocked;
-import static de.tbodyowski.waros.manager.FileManager.playerIsRegistered;
+import static de.tbodyowski.pureos.manager.FileManager.StringIsBlocked;
+import static de.tbodyowski.pureos.manager.FileManager.playerIsRegistered;
 
 public class StatusCommand implements CommandExecutor {
 

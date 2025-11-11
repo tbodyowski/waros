@@ -1,4 +1,4 @@
-package de.tbodyowski.waros.Events;
+package de.tbodyowski.pureos.Events;
 
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.ComponentBuilder;

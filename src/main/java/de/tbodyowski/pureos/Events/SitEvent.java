@@ -1,6 +1,6 @@
-package de.tbodyowski.waros.Events;
+package de.tbodyowski.pureos.Events;
 
-import de.tbodyowski.waros.Main;
+import de.tbodyowski.pureos.Main;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

@@ -1,6 +1,6 @@
-package de.tbodyowski.waros.manager;
+package de.tbodyowski.pureos.manager;
 
-import de.tbodyowski.waros.Main;
+import de.tbodyowski.pureos.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Statistic;

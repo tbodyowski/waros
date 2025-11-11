@@ -1,6 +1,6 @@
-package de.tbodyowski.waros.manager;
+package de.tbodyowski.pureos.manager;
 
-import de.tbodyowski.waros.Main;
+import de.tbodyowski.pureos.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -15,10 +15,9 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
-import java.util.List;
 import java.util.Objects;
 
-import static de.tbodyowski.waros.manager.PrefixManager.team;
+import static de.tbodyowski.pureos.manager.PrefixManager.team;
 
 public class EventManager implements Listener {
 

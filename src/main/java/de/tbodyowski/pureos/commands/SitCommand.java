@@ -1,4 +1,4 @@
-package de.tbodyowski.waros.commands;
+package de.tbodyowski.pureos.commands;
 
 import org.bukkit.Location;
 import org.bukkit.command.Command;

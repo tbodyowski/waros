@@ -1,14 +1,11 @@
-package de.tbodyowski.waros.commands;
+package de.tbodyowski.pureos.commands;
 
-import de.tbodyowski.waros.Main;
-import net.kyori.adventure.Adventure;
-import net.kyori.adventure.text.format.TextColor;
+import de.tbodyowski.pureos.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Llama;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
