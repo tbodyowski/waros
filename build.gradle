@@ -17,11 +17,13 @@ repositories {
         url = "https://oss.sonatype.org/content/groups/public/"
     }
     maven { url "https://repo.dmulloy2.net/repository/public/" }
+   // maven {url "    url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'\n"}
 }
 
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
-    implementation('io.socket:socket.io-client:2.1.1')
+    //compileOnly 'org.spigotmc:spigot:1.21.1-R0.1-SNAPSHOT' // The full Spigot server with no shadowing. Requires mavenLocal.
+
+    compileOnly("io.papermc.paper:paper-api:1.21.10-R0.1-SNAPSHOT")
 }
 
 def targetJavaVersion = 22

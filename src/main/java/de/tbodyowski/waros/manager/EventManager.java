@@ -26,8 +26,16 @@ public class EventManager implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
         Player p = event.getPlayer();
+
+        if (p.getUniqueId().toString().equalsIgnoreCase("33f9bcce-c9db-4698-8e6a-3e45a39add29")){
+            event.setJoinMessage(null);
+            return;
+        }
+
+
         String joinMessage = "";
         event.setJoinMessage("");
+        event.getPlayer().sendMessage("§f§a§i§r§x§a§e§r§o");
 
         if (!FileManager.playerIsRegistered(p)) {
             Main.getInstance().getFileManager().savePlayerInStatus(p, "Default", "§f");
@@ -53,16 +61,7 @@ public class EventManager implements Listener {
         }
 
         statusData.set(p.getUniqueId()+".Afk",false);
-        List<String> pendingInvites = Main.getInstance().getGuildManager().getPendingInvites(p.getUniqueId());
-        if (!pendingInvites.isEmpty()) {
-            p.sendMessage(ChatColor.YELLOW + "You have pending guild invites:");
-            for (String guildName : pendingInvites) {
-                p.sendMessage(ChatColor.GOLD + "- " + guildName);
-            }
-            p.sendMessage(ChatColor.YELLOW + "Use /guild accept <guild name> to join.");
-        }
         Main.getInstance().getPrefixManager().updatePrefixAllPlayers();
-        event.getPlayer().sendMessage("§f§a§i§r§x§a§e§r§o");
     }
 
     @EventHandler

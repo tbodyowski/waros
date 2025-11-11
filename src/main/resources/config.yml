@@ -1,7 +1,7 @@
 spawnRadius: 50
 multiplyValue: 5
 boostEnabled: true
-world: War 5
+world: world
 message: Drücke %key% um dich zu Boosten.
 Status-Prefix: §7[§9Status§7]§r §7->§r
 Status-Prefix-on/off: true

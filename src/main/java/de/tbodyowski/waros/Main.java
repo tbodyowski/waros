@@ -1,17 +1,11 @@
 package de.tbodyowski.waros;
 
-import de.tbodyowski.waros.Events.ChatEvent;
-import de.tbodyowski.waros.Events.DeathEvent;
-import de.tbodyowski.waros.Events.ElytraBoostEvent;
-import de.tbodyowski.waros.Events.GUIClickEvent;
+import de.tbodyowski.waros.Events.*;
 import de.tbodyowski.waros.commands.*;
-import de.tbodyowski.waros.inventory.admin.GuildAdminInventory;
 import de.tbodyowski.waros.manager.*;
 import de.tbodyowski.waros.util.DroppedFrameLocation;
-import de.tbodyowski.waros.util.Websocket;
-import io.socket.client.IO;
-import io.socket.client.Socket;
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -34,12 +28,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.net.URISyntaxException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public final class Main extends JavaPlugin implements Listener {
@@ -57,17 +49,27 @@ public final class Main extends JavaPlugin implements Listener {
     private Material glowInkSac = null;
     private Material glowFrame = null;
     private EntityType glowFrameEntity = null;
-    private Socket socket;
-    private Websocket websocket;
     private GuildManager guildManager;
     private ConfigVarManager configVarManager;
     private GuildAdminInventory guildAdminInventory;
     File configFile = new File(getDataFolder(), "config.yml");
+    private File EggLocation;
+    private FileConfiguration eggConfig;
+
 
 
     @Override
     public void onEnable() {
         if (!configFile.exists()) saveDefaultConfig();
+        EggLocation = new File(getDataFolder(), "egglocation.yml");
+        if (!EggLocation.exists()){
+            try {
+                EggLocation.createNewFile();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+        eggConfig = YamlConfiguration.loadConfiguration(EggLocation);
         instance = this;
         this.prefixManager = new PrefixManager();
         this.configVarManager = new ConfigVarManager();
@@ -93,7 +95,7 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new DeathEvent(), this);
         getServer().getPluginManager().registerEvents(new ChatEvent(), this);
         getServer().getPluginManager().registerEvents(new GUIClickEvent(), this);
-
+        getServer().getPluginManager().registerEvents(new SitEvent(), this);
         if (this.getConfig().getBoolean("Status-Prefix-on/off")) {
             this.Status_Prefix = this.getConfig().getString("Status-Prefix");
         }
@@ -106,10 +108,10 @@ public final class Main extends JavaPlugin implements Listener {
         getCommand("guild").setExecutor(new GuildCommand(guildManager));
         getCommand("guild").setTabCompleter(new GuildTabComplete(guildManager));
         getCommand("vanish").setExecutor(new VanishCommand());
+        getCommand("sit").setExecutor(new SitCommand());
 
         getPrefixManager().setScoreboard();
         startSaveAndRegisterPlayer();
-        initSocket();
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
         }
@@ -129,20 +131,6 @@ public final class Main extends JavaPlugin implements Listener {
         }
     }
 
-    private void initSocket(){
-        try {
-            socket = IO.socket("http://localhost:3000");
-            websocket = new Websocket(socket);
-            websocket.connect();
-        } catch (URISyntaxException e) {
-            Logger.getLogger("minecraft").log(Level.SEVERE, "URISyntaxException while connecting to WebSocket", e);
-            getServer().getPluginManager().disablePlugin(this);
-        } catch (Exception e) {
-            Logger.getLogger("minecraft").log(Level.SEVERE, "Exception while connecting to WebSocket", e);
-            getServer().getPluginManager().disablePlugin(this);
-        }
-    }
-
     private void removeRecipe() {
         Iterator<Recipe> iter = getServer().recipeIterator();
         while (iter.hasNext()) {
@@ -157,6 +145,14 @@ public final class Main extends JavaPlugin implements Listener {
 
     public Boolean getDeathCounter_on_off() {
         return DeathCounter_on_off;
+    }
+
+    public FileConfiguration getEggConfig() {
+        return eggConfig;
+    }
+
+    public File getEggLocation() {
+        return EggLocation;
     }
 
     public static Main getInstance() {
@@ -177,10 +173,6 @@ public final class Main extends JavaPlugin implements Listener {
 
     public String getStatus_Prefix() {
         return Status_Prefix;
-    }
-
-    public Websocket getWebsocket() {
-        return websocket;
     }
 
     public void setRecipeItem(ItemStack item) {
