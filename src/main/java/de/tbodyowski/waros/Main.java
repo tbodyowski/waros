@@ -49,9 +49,8 @@ public final class Main extends JavaPlugin implements Listener {
     private Material glowInkSac = null;
     private Material glowFrame = null;
     private EntityType glowFrameEntity = null;
-    private GuildManager guildManager;
+
     private ConfigVarManager configVarManager;
-    private GuildAdminInventory guildAdminInventory;
     File configFile = new File(getDataFolder(), "config.yml");
     private File EggLocation;
     private FileConfiguration eggConfig;
@@ -73,9 +72,7 @@ public final class Main extends JavaPlugin implements Listener {
         instance = this;
         this.prefixManager = new PrefixManager();
         this.configVarManager = new ConfigVarManager();
-        this.guildAdminInventory = new GuildAdminInventory();
         this.fileManager = new FileManager();
-        guildManager = new GuildManager();
         invisibleRecipe = new NamespacedKey(this, "invisible-recipe");
         invisibleKey = new NamespacedKey(this, "invisible");
         configVarManager.updateVar();
@@ -93,8 +90,6 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(ElytraBoostEvent.create(this), this);
         getServer().getPluginManager().registerEvents(new DeathEvent(), this);
-        getServer().getPluginManager().registerEvents(new ChatEvent(), this);
-        getServer().getPluginManager().registerEvents(new GUIClickEvent(), this);
         getServer().getPluginManager().registerEvents(new SitEvent(), this);
         if (this.getConfig().getBoolean("Status-Prefix-on/off")) {
             this.Status_Prefix = this.getConfig().getString("Status-Prefix");
@@ -102,11 +97,8 @@ public final class Main extends JavaPlugin implements Listener {
         this.DeathCounter_on_off = this.getConfig().getBoolean("DeathCounter-on/off");
 
         Bukkit.getPluginManager().registerEvents(new EventManager(),this);
-        getCommand("admin").setExecutor(new AdminCommand());
         getCommand("status").setExecutor(new StatusCommand());
         getCommand("status").setTabCompleter(new StatusTabComplete());
-        getCommand("guild").setExecutor(new GuildCommand(guildManager));
-        getCommand("guild").setTabCompleter(new GuildTabComplete(guildManager));
         getCommand("vanish").setExecutor(new VanishCommand());
         getCommand("sit").setExecutor(new SitCommand());
 
@@ -159,17 +151,10 @@ public final class Main extends JavaPlugin implements Listener {
         return instance;
     }
 
-    public GuildAdminInventory getGuildAdminInventory() {
-        return guildAdminInventory;
-    }
-
     public FileManager getFileManager() {
         return fileManager;
     }
 
-    public GuildManager getGuildManager() {
-        return guildManager;
-    }
 
     public String getStatus_Prefix() {
         return Status_Prefix;
