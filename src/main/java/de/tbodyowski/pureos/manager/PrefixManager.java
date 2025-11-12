@@ -21,17 +21,6 @@ public class PrefixManager {
         deathsScoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard();
         defaultScoreboard.registerNewTeam(team);
         deathsScoreboard.registerNewTeam(team);
-        Objects.requireNonNull(defaultScoreboard.getTeam(team)).setPrefix("default_prefix");
-        Objects.requireNonNull(deathsScoreboard.getTeam(team)).setPrefix("deaths_prefix");
-    }
-
-    public void resetAfkAll(){
-        for (Player target : Bukkit.getOnlinePlayers()) {
-            Main.getInstance().getFileManager().saveStatusFile();
-            Main.getInstance().getFileManager().getStatusData().set(target.getUniqueId()+".Afk", false);
-            Main.getInstance().getFileManager().saveStatusFile();
-            Main.getInstance().getPrefixManager().updatePrefixAllPlayers();
-        }
     }
 
     public static void updatePrefix(Player player) {
