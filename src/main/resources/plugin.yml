@@ -19,3 +19,6 @@ commands:
   sit:
     description: Allows you to sit down
     usage: /sit
+  ghastspeed:
+    description: Set your happy ghast's speed
+    usage: /ghastspeed <Geschwindigkeit>

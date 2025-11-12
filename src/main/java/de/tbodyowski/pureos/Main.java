@@ -2,6 +2,7 @@ package de.tbodyowski.pureos;
 
 import de.tbodyowski.pureos.Events.*;
 import de.tbodyowski.pureos.commands.*;
+import de.tbodyowski.pureos.inventory.GhastSpeedInventory;
 import de.tbodyowski.pureos.manager.*;
 import de.tbodyowski.pureos.util.DroppedFrameLocation;
 import org.bukkit.*;
@@ -49,6 +50,7 @@ public final class Main extends JavaPlugin implements Listener {
     private Material glowInkSac = null;
     private Material glowFrame = null;
     private EntityType glowFrameEntity = null;
+    private GhastSpeedInventory ghastSpeedInventory;
 
     private ConfigVarManager configVarManager;
     File configFile = new File(getDataFolder(), "config.yml");
@@ -73,6 +75,7 @@ public final class Main extends JavaPlugin implements Listener {
         this.prefixManager = new PrefixManager();
         this.configVarManager = new ConfigVarManager();
         this.fileManager = new FileManager();
+        this.ghastSpeedInventory = new GhastSpeedInventory();
         invisibleRecipe = new NamespacedKey(this, "invisible-recipe");
         invisibleKey = new NamespacedKey(this, "invisible");
         configVarManager.updateVar();
@@ -91,6 +94,7 @@ public final class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(ElytraBoostEvent.create(this), this);
         getServer().getPluginManager().registerEvents(new DeathEvent(), this);
         getServer().getPluginManager().registerEvents(new SitEvent(), this);
+        getServer().getPluginManager().registerEvents(new GhastSpeedInventory(), this);
         if (this.getConfig().getBoolean("Status-Prefix-on/off")) {
             this.Status_Prefix = this.getConfig().getString("Status-Prefix");
         }
@@ -101,6 +105,7 @@ public final class Main extends JavaPlugin implements Listener {
         getCommand("status").setTabCompleter(new StatusTabComplete());
         getCommand("vanish").setExecutor(new VanishCommand());
         getCommand("sit").setExecutor(new SitCommand());
+        getCommand("ghastspeed").setExecutor(new GhastSpeedCommand());
 
         getPrefixManager().setScoreboard();
         startSaveAndRegisterPlayer();
@@ -155,6 +160,9 @@ public final class Main extends JavaPlugin implements Listener {
         return fileManager;
     }
 
+    public GhastSpeedInventory getGhastSpeedInventory() {
+        return ghastSpeedInventory;
+    }
 
     public String getStatus_Prefix() {
         return Status_Prefix;

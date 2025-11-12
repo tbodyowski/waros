@@ -23,7 +23,7 @@ public class FileManager {
 
 
     public FileManager(){
-        File folder = new File("./plugins/WarOS/");
+        File folder = new File("./plugins/PureOS/");
         this.statusDataFile = new File(folder, "status.yml");
         this.blockedWordsDataFile = new File(folder, "blockedWords.yml");
         this.guildDataFile = new File(folder, "guilds.yml");
