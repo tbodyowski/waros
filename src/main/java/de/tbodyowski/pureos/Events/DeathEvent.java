@@ -8,6 +8,10 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 public class DeathEvent implements Listener {
 
 
@@ -16,9 +20,15 @@ public class DeathEvent implements Listener {
         event.getDrops().add(PlayerHead(event.getPlayer()));
     }
     public ItemStack PlayerHead(Player player){
+        List<String> lore = new ArrayList<>();
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();
         meta.setOwningPlayer(player);
+
+        if (player.getKiller() != null) {
+            lore.add("§7Getötet von: §e" + player.getKiller().getName());
+        }
+        meta.setLore(lore);
         skull.setItemMeta(meta);
         return skull;
     }

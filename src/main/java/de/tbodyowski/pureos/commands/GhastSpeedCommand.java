@@ -11,6 +11,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Ghast;
 import org.bukkit.entity.HappyGhast;
 import org.bukkit.entity.Player;
+import org.bukkit.util.ChatPaginator;
 import org.jetbrains.annotations.NotNull;
 
 public class GhastSpeedCommand implements CommandExecutor {
@@ -46,12 +47,14 @@ public class GhastSpeedCommand implements CommandExecutor {
             return true;
         }
 
-
         AttributeInstance attr = ghast.getAttribute(Attribute.FLYING_SPEED);
         if (attr == null){
             player.sendMessage(ChatColor.RED+"Dieser Happy Ghast kann nicht schneller werden");
         }
-
+        if (newSpeed > 3) {
+            player.sendMessage(ChatColor.RED + "Ein Ghast kann nicht schneller als " + ChatColor.WHITE + Main.getInstance().getConfig().getInt("MaxGhastSpeed") + ChatColor.RED + " werden!");
+            return true;
+        }
         attr.setBaseValue(0.05*newSpeed);
         player.sendMessage(ChatColor.GREEN + "Dein Ghast hat nun eine Geschwindigkeit von " + ChatColor.GOLD + newSpeed);
 

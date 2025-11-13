@@ -21,6 +21,8 @@ public class PrefixManager {
         deathsScoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard();
         defaultScoreboard.registerNewTeam(team);
         deathsScoreboard.registerNewTeam(team);
+        Objects.requireNonNull(defaultScoreboard.getTeam(team)).setPrefix("");
+        Objects.requireNonNull(deathsScoreboard.getTeam(team)).setPrefix("");
     }
 
     public static void updatePrefix(Player player) {
@@ -36,10 +38,9 @@ public class PrefixManager {
             }
 
             if (Objects.equals(statusData.getString(player.getUniqueId() + ".status"), "Default")) {
-                Objects.requireNonNull(defaultScoreboard.getTeam(playerTeam)).setPrefix("§f[" + "Spieler" + "§f] §f");
+                Objects.requireNonNull(defaultScoreboard.getTeam(playerTeam)).setPrefix("");
 
-                Objects.requireNonNull(deathsScoreboard.getTeam(playerTeam)).setPrefix("§f[" + player.getStatistic(Statistic.DEATHS) + "§f] "
-                        + "§f[" + "Spieler" + "§f] §f");
+                Objects.requireNonNull(deathsScoreboard.getTeam(playerTeam)).setPrefix("§f[" + player.getStatistic(Statistic.DEATHS) + "§f] ");
             } else {
                 Objects.requireNonNull(defaultScoreboard.getTeam(playerTeam)).setPrefix("§f[" + statusData.getString(player.getUniqueId() + ".color")
                         + ChatColor.translateAlternateColorCodes('&', (statusData.getString(player.getUniqueId() + ".status")) + "§f] §f"));

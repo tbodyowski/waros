@@ -26,12 +26,6 @@ public class EventManager implements Listener {
         YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
         Player p = event.getPlayer();
 
-        if (p.getUniqueId().toString().equalsIgnoreCase("33f9bcce-c9db-4698-8e6a-3e45a39add29")){
-            event.setJoinMessage(null);
-            return;
-        }
-
-
         String joinMessage = "";
         event.setJoinMessage("");
         event.getPlayer().sendMessage("§f§a§i§r§x§a§e§r§o");
