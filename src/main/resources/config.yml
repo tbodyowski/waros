@@ -13,3 +13,4 @@ BlockedWords-Toggle: false
 Prefix-LengthLimit: 5
 Uppercase/LengthLimit-Toggle: false
 MaxGhastSpeed: 2
+HorseRideSpeedMultiplier: 2.0

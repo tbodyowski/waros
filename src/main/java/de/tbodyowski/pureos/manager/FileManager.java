@@ -21,12 +21,17 @@ public class FileManager {
     private final File guildDataFile;
     private YamlConfiguration guildData;
 
+    private final File chestDataFile;
+    private YamlConfiguration chestData;
+
 
     public FileManager(){
         File folder = new File("./plugins/PureOS/");
         this.statusDataFile = new File(folder, "status.yml");
         this.blockedWordsDataFile = new File(folder, "blockedWords.yml");
         this.guildDataFile = new File(folder, "guilds.yml");
+        this.chestDataFile = new File(folder, "chests.yml");
+
 
         try {
             if (!folder.exists()) folder.mkdirs();
@@ -39,9 +44,12 @@ public class FileManager {
             if (!guildDataFile.exists()) guildDataFile.createNewFile();
             guildData = YamlConfiguration.loadConfiguration(guildDataFile);
 
+            if (!chestDataFile.exists()) chestDataFile.createNewFile();
+            chestData = YamlConfiguration.loadConfiguration(chestDataFile);
+
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logIoError("Fehler beim Initialisieren der Dateiverwaltung", e);
         }
     }
 
@@ -51,18 +59,21 @@ public class FileManager {
     }
 
     public void reloadStatusFile() {
-        YamlConfiguration.loadConfiguration(statusDataFile);
+        statusData = YamlConfiguration.loadConfiguration(statusDataFile);
+    }
+    public void reloadChestFile() {
+        chestData = YamlConfiguration.loadConfiguration(chestDataFile);
     }
 
     public void reloadBlockedWordsFile() {
-        YamlConfiguration.loadConfiguration(blockedWordsDataFile);
+        blockedWordsData = YamlConfiguration.loadConfiguration(blockedWordsDataFile);
     }
 
     public void saveStatusFile() {
         try {
             statusData.save(statusDataFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logIoError("Fehler beim Speichern von status.yml", e);
         }
         reloadStatusFile();
     }
@@ -70,45 +81,23 @@ public class FileManager {
         try {
             blockedWordsData.save(blockedWordsDataFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            logIoError("Fehler beim Speichern von blockedWords.yml", e);
         }
     }
 
-    public void saveStatusData() {
-        try {
-            statusData.save(statusDataFile);
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void logIoError(String message, IOException exception) {
+        if (Main.getInstance() != null) {
+            Main.getInstance().getLogger().warning(message + ": " + exception.getMessage());
+            return;
         }
+        java.util.logging.Logger.getLogger("PureOS").warning(message + ": " + exception.getMessage());
     }
-
 
     public YamlConfiguration getBlockedWordsData() {
         reloadBlockedWordsFile();
         return blockedWordsData;
     }
 
-    public void saveBlockedWordsData() {
-        try {
-            blockedWordsData.save(blockedWordsDataFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public YamlConfiguration getGuildData() {
-        return guildData;
-    }
-
-    public void saveGuildData() {
-        try {
-            guildData.save(guildDataFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    // Utility methods for player registration
     public static boolean playerIsRegistered(Player player) {
         YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
         return statusData.contains(player.getUniqueId().toString());

@@ -10,7 +10,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class DeathEvent implements Listener {
 

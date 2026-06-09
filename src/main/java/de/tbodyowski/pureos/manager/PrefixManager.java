@@ -7,6 +7,7 @@ import org.bukkit.Statistic;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.Team;
 
 import java.util.Objects;
 
@@ -16,51 +17,60 @@ public class PrefixManager {
     private static Scoreboard defaultScoreboard;
     private static Scoreboard deathsScoreboard;
 
+    private Team ensureTeam(Scoreboard scoreboard, String name) {
+        Team existing = scoreboard.getTeam(name);
+        return existing != null ? existing : scoreboard.registerNewTeam(name);
+    }
+
+    private String getSafePlayerTeamName(Player player) {
+        // Team-Namen sind limitiert; UUID-basierter Name vermeidet Kollisionen mit Player#toString()
+        String raw = "p" + player.getUniqueId().toString().replace("-", "");
+        return raw.substring(0, 16);
+    }
+
     public void setScoreboard() {
         defaultScoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard();
         deathsScoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard();
-        defaultScoreboard.registerNewTeam(team);
-        deathsScoreboard.registerNewTeam(team);
-        Objects.requireNonNull(defaultScoreboard.getTeam(team)).setPrefix("");
-        Objects.requireNonNull(deathsScoreboard.getTeam(team)).setPrefix("");
+        ensureTeam(defaultScoreboard, team).setPrefix("");
+        ensureTeam(deathsScoreboard, team).setPrefix("");
     }
 
     public static void updatePrefix(Player player) {
+        if (defaultScoreboard == null || deathsScoreboard == null) {
+            Main.getInstance().getPrefixManager().setScoreboard();
+        }
+
         YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
-        String playerTeam = "001" + player;
+        String playerTeam = Main.getInstance().getPrefixManager().getSafePlayerTeamName(player);
 
         if (player.isOnline()) {
-            try {
-                defaultScoreboard.registerNewTeam(playerTeam);
-                deathsScoreboard.registerNewTeam(playerTeam);
-            } catch (Exception e){
-                System.out.println(Main.getInstance().getConfigVarManager().getStatus_Prefix()+"Register new Team error!");
-            }
+            Team defaultPlayerTeam = Main.getInstance().getPrefixManager().ensureTeam(defaultScoreboard, playerTeam);
+            Team deathsPlayerTeam = Main.getInstance().getPrefixManager().ensureTeam(deathsScoreboard, playerTeam);
 
             if (Objects.equals(statusData.getString(player.getUniqueId() + ".status"), "Default")) {
-                Objects.requireNonNull(defaultScoreboard.getTeam(playerTeam)).setPrefix("");
+                defaultPlayerTeam.setPrefix("");
 
-                Objects.requireNonNull(deathsScoreboard.getTeam(playerTeam)).setPrefix("§f[" + player.getStatistic(Statistic.DEATHS) + "§f] ");
+                deathsPlayerTeam.setPrefix("§f[" + player.getStatistic(Statistic.DEATHS) + "§f] ");
             } else {
-                Objects.requireNonNull(defaultScoreboard.getTeam(playerTeam)).setPrefix("§f[" + statusData.getString(player.getUniqueId() + ".color")
+                defaultPlayerTeam.setPrefix("§f[" + statusData.getString(player.getUniqueId() + ".color")
                         + ChatColor.translateAlternateColorCodes('&', (statusData.getString(player.getUniqueId() + ".status")) + "§f] §f"));
 
-                Objects.requireNonNull(deathsScoreboard.getTeam(playerTeam)).setPrefix("§f[" + player.getStatistic(Statistic.DEATHS) + "§f] "
+                deathsPlayerTeam.setPrefix("§f[" + player.getStatistic(Statistic.DEATHS) + "§f] "
                         + "§f[" + statusData.getString(player.getUniqueId() + ".color")
                         + ChatColor.translateAlternateColorCodes('&', (statusData.getString(player.getUniqueId() + ".status")) + "§f] §f"));
 
             }
 
             if (statusData.getBoolean(player.getUniqueId() + ".Afk")){
-                Objects.requireNonNull(defaultScoreboard.getTeam(playerTeam)).setSuffix("§r §c[" + "AFK" + "]§r");
-                Objects.requireNonNull(deathsScoreboard.getTeam(playerTeam)).setSuffix("§r §c[" + "AFK" + "]§r");
+                defaultPlayerTeam.setSuffix("§r §c[" + "AFK" + "]§r");
+                deathsPlayerTeam.setSuffix("§r §c[" + "AFK" + "]§r");
             } else {
-                Objects.requireNonNull(defaultScoreboard.getTeam(playerTeam)).setSuffix("");
-                Objects.requireNonNull(deathsScoreboard.getTeam(playerTeam)).setSuffix("");
+                defaultPlayerTeam.setSuffix("");
+                deathsPlayerTeam.setSuffix("");
             }
 
-            Objects.requireNonNull(defaultScoreboard.getTeam(playerTeam)).addEntry(player.getDisplayName());
-            Objects.requireNonNull(deathsScoreboard.getTeam(playerTeam)).addEntry(player.getDisplayName());
+            defaultPlayerTeam.addEntry(player.getName());
+            deathsPlayerTeam.addEntry(player.getName());
 
 
 
@@ -69,11 +79,11 @@ public class PrefixManager {
     }
 
     public String getTeamByPlayer(Player player) {
-        return "001" + player;
+        return getSafePlayerTeamName(player);
     }
 
     public void updatePrefixAllPlayers() {
-        Main.getInstance().getPrefixManager().setScoreboard();
+        setScoreboard();
 
         for (Player target : Bukkit.getOnlinePlayers()) {
             Main.getInstance().getFileManager().saveStatusFile();
@@ -181,5 +191,39 @@ public class PrefixManager {
 
     public String getTeam() {
         return team;
+    }
+
+    /**
+     * Bereinigt alle Scoreboards und Spieler-Teams beim Plugin-Disable
+     */
+    public void cleanup() {
+        try {
+            // Alle Spieler zurücksetzen auf das Standard-Scoreboard
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Scoreboard emptyScoreboard = Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard();
+                player.setScoreboard(emptyScoreboard);
+            }
+            
+            // Alle Teams von den Scoreboards löschen
+            if (defaultScoreboard != null) {
+                for (org.bukkit.scoreboard.Team teams : defaultScoreboard.getTeams()) {
+                    teams.unregister();
+                }
+            }
+            
+            if (deathsScoreboard != null) {
+                for (org.bukkit.scoreboard.Team teams : deathsScoreboard.getTeams()) {
+                    teams.unregister();
+                }
+            }
+            
+            // Scoreboards auf null setzen
+            defaultScoreboard = null;
+            deathsScoreboard = null;
+        } catch (Exception e) {
+            if (Main.getInstance() != null) {
+                Main.getInstance().getLogger().warning("Fehler beim Cleanup der Scoreboards: " + e.getMessage());
+            }
+        }
     }
 }

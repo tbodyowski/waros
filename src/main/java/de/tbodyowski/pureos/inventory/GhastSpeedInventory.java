@@ -1,13 +1,10 @@
 package de.tbodyowski.pureos.inventory;
 
 import de.tbodyowski.pureos.Main;
-import de.tbodyowski.pureos.util.ItemBuilder;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
-import org.bukkit.block.data.type.DriedGhast;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HappyGhast;
 import org.bukkit.entity.Player;
@@ -15,11 +12,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GhastSpeedInventory implements Listener {
@@ -93,7 +88,7 @@ public class GhastSpeedInventory implements Listener {
             }
 
             if (multiplier < 0.1) multiplier = 0.1;
-            if (multiplier > Main.getInstance().getConfig().getInt("MaxGhastSpeed")) multiplier = Main.getInstance().getConfig().getInt("MaxGhastSpeed");
+            if (multiplier > Main.getInstance().getConfig().getDouble("MaxGhastSpeed")) multiplier = Main.getInstance().getConfig().getDouble("MaxGhastSpeed");
 
             setMultiplier(ghast, multiplier);
             openGhastSpeedInventory(player, ghast);

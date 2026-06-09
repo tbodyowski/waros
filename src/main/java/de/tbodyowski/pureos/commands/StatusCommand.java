@@ -212,7 +212,7 @@ public class StatusCommand implements CommandExecutor {
             }
             return true;
         }
-        System.out.println("You must be a player!");
+        Main.getInstance().getLogger().warning("Status-Befehl wurde von Nicht-Spieler ausgefuehrt.");
         return true;
     }
 

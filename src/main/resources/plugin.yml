@@ -1,5 +1,5 @@
 name: PureOS
-version: '${version}'
+version: 1.0
 main: de.tbodyowski.pureos.Main
 api-version: '1.21'
 load: POSTWORLD
@@ -16,9 +16,35 @@ commands:
     description: Hide yourself from other Players
     usage: /vanish {Player}
     permission: pureos.vanish
+  adminchat:
+    description: Toggle the Adminchat
+    permission: adminchat.use
+    aliases:
+      - ac
   sit:
     description: Allows you to sit down
     usage: /sit
   ghastspeed:
     description: Set your happy ghast's speed
     usage: /ghastspeed <Geschwindigkeit>
+  config:
+    description: config command
+    usage: /config
+    permission: pureos.config
+  invsee:
+    description: Oeffnet das Inventar eines Spielers (inkl. Ruestung/Offhand)
+    usage: /invsee <spieler>
+    permission: pureos.invsee
+  endsee:
+    description: Oeffnet die Enderchest eines Spielers
+    usage: /endsee <spieler>
+    permission: pureos.endsee
+permissions:
+  pureos.config:
+    default: op
+  adminchat.use:
+    default: op
+  pureos.invsee:
+    default: op
+  pureos.endsee:
+    default: op
